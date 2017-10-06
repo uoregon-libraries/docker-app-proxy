@@ -55,11 +55,56 @@ def write_staging_compose(data, dirname):
   with open(fname, "w") as f:
     f.write(yaml.dump(data, default_flow_style=False))
 
+def get_service_metadata(service):
+  print("Not implemented")
+  print("")
+
+def menu(services):
+  print("Choose which service(s) to expose:")
+  print("")
+  num_map = {}
+  optnum = 1
+  for service in services:
+    print("%d) %s" % (optnum, service))
+    num_map["%d" % optnum] = service
+    optnum += 1
+
+  print("")
+  print("A) Abort (exit without saving)")
+  print("X) Save and exit (will reload nginx)")
+  print("")
+
+  done = False
+  while not done:
+    try:
+      val = raw_input(">> ").upper()
+    except EOFError:
+      print("")
+      val = "A"
+
+    if val in num_map:
+      get_service_metadata(num_map[val])
+      continue
+
+    if val == "A":
+      print("Aborting")
+      print("")
+      return
+
+    if val == "X":
+      print("Not implemented!  Use 'A' to abort for now.")
+      print("")
+      continue
+
+    print("Invalid option")
+    print("")
+
 def main():
   dirname, compose_file = getcli()
   data = load_yaml(compose_file)
   hack_data(data)
   write_staging_compose(data, dirname)
+  menu(data["services"].iterkeys())
 
 if __name__ == '__main__':
   main()
