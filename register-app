@@ -1,0 +1,10 @@
+#!/bin/bash
+set -eu
+
+dir=${1:-}
+if [[ $dir != "" ]]; then
+  dir=$(realpath $dir 2>&1)
+fi
+
+cd /usr/local/register
+./register.py $dir
