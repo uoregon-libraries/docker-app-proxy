@@ -8,6 +8,8 @@ import sys
 import yaml
 import configure_service
 
+STAGING_FILE_BASE="staging.docker-compose.yml"
+
 def usage(err = ""):
   exitcode=0
   if err != "":
@@ -52,7 +54,7 @@ def hack_data(data):
     data["services"][service_name].pop("ports", None)
 
 def staging_file(dirname):
-  return os.path.join(dirname, "staging.docker-compose.yml")
+  return os.path.join(dirname, STAGING_FILE_BASE)
 
 def has_staging_compose(dirname):
   return os.path.exists(staging_file(dirname))
@@ -164,6 +166,7 @@ def main():
 
   final_confs = main_menu(confs)
   if final_confs is not None:
+    print("You can now cd to %s and run docker-compose with the staging file (%s)" % (dirname, STAGING_FILE_BASE))
     write_staging_compose(dirname, data, final_confs)
 
 if __name__ == '__main__':
