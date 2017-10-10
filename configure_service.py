@@ -4,7 +4,7 @@ def print_menu(service):
   print("C) Clear exposed ports")
   print("P) Map a port (current mappings: %s)" % repr(service["ports"]))
   h = service["host"]
-  print("H) Set host prefix (currently %s; e.g., your final URL might look like http://%s.staging.domain.com)" % (h, h))
+  print("H) Set host prefix (currently %s; e.g., your URL will look like http://%s.%hostname%)" % (h, h))
   print("")
   print("A) Abort and return to main menu")
   print("X) Save and return to main menu")
