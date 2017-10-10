@@ -2,9 +2,11 @@
 #
 # register.py allows registering a directory as a proxyable nginx application
 
+import json
 import os
 import sys
 import yaml
+import configure_service
 
 def usage(err = ""):
   exitcode=0
@@ -49,30 +51,76 @@ def hack_data(data):
   for service_name in data["services"].iterkeys():
     data["services"][service_name].pop("ports", None)
 
-def write_staging_compose(data, dirname):
+def staging_file(dirname):
+  return os.path.join(dirname, "staging.docker-compose.yml")
+
+def has_staging_compose(dirname):
+  return os.path.exists(staging_file(dirname))
+
+def apply_service_confs(data, confs):
+  """Return the service config information from environment variables configured in data"""
+  for name, dockerdata in data["services"].iteritems():
+    if name not in confs:
+      confs[name] = {"name": name, "ports": {}, "host": name}
+
+    if "environment" not in dockerdata:
+      continue
+
+    env = dockerdata["environment"]
+    for var in env:
+      parts = var.split("=", 1)
+      if len(parts) != 2:
+        continue
+
+      key, val = parts[0], parts[1]
+      if key == "STGCONF_X_P80":
+        confs[name]["ports"][80] = int(val)
+      if key == "STGCONF_X_P443":
+        confs[name]["ports"][443] = int(val)
+      if key == "STGCONF_X_HOST":
+        confs[name]["host"] = val
+
+def write_staging_compose(dirname, data, confs):
   """Write the given config to a staging-specific compose file"""
-  fname = os.path.join(dirname, "staging.docker-compose.yml")
-  with open(fname, "w") as f:
+  for name, conf in confs.iteritems():
+    dockerdata = data["services"][name]
+    if len(conf["ports"]) > 0:
+      if "environment" not in dockerdata:
+        dockerdata["environment"] = []
+
+      for p1,p2 in conf["ports"].iteritems():
+        if p1 == 80:
+          dockerdata["environment"].append("STGCONF_X_P80=%d" % p2)
+        elif p1 == 443:
+          dockerdata["environment"].append("STGCONF_X_P443=%d" % p2)
+
+      dockerdata["environment"].append("STGCONF_X_HOST=%s" % conf["host"])
+
+  with open(staging_file(dirname), "w") as f:
     f.write(yaml.dump(data, default_flow_style=False))
 
-def get_service_metadata(service):
-  print("Not implemented")
-  print("")
-
-def menu(services):
+def print_menu(services, confs):
   print("Choose which service(s) to expose:")
   print("")
-  num_map = {}
   optnum = 1
   for service in services:
-    print("%d) %s" % (optnum, service))
-    num_map["%d" % optnum] = service
+    conf = confs[service]
+    if len(conf["ports"]) > 0:
+      print("%d) %s [host: %s; ports: %s]" % (optnum, service, conf["host"], repr(conf["ports"])))
+    else:
+      print("%d) %s [not exposed]" % (optnum, service))
     optnum += 1
-
   print("")
   print("A) Abort (exit without saving)")
   print("X) Save and exit (will reload nginx)")
   print("")
+
+def main_menu(confs):
+  svc_list = []
+  for service in confs.iterkeys():
+    svc_list.append(service)
+
+  print_menu(svc_list, confs)
 
   done = False
   while not done:
@@ -82,29 +130,41 @@ def menu(services):
       print("")
       val = "A"
 
-    if val in num_map:
-      get_service_metadata(num_map[val])
-      continue
+    try:
+      valnum = int(val)
+      if valnum < len(svc_list):
+        service = svc_list[valnum-1]
+        configure_service.run(confs[service])
+        print_menu(svc_list, confs)
+        continue
+    except ValueError:
+      pass
 
     if val == "A":
       print("Aborting")
       print("")
-      return
+      return None
 
     if val == "X":
-      print("Not implemented!  Use 'A' to abort for now.")
-      print("")
-      continue
+      print("Saving data and writing out to staging compose file")
+      return confs
 
     print("Invalid option")
-    print("")
+    print_menu(svc_list, confs)
 
 def main():
   dirname, compose_file = getcli()
   data = load_yaml(compose_file)
   hack_data(data)
-  write_staging_compose(data, dirname)
-  menu(data["services"].iterkeys())
+  confs = {}
+  apply_service_confs(data, confs)
+  if has_staging_compose(dirname):
+    staging_data = load_yaml(staging_file(dirname))
+    apply_service_confs(staging_data, confs)
+
+  final_confs = main_menu(confs)
+  if final_confs is not None:
+    write_staging_compose(dirname, data, final_confs)
 
 if __name__ == '__main__':
   main()
