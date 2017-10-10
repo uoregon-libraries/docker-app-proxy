@@ -108,7 +108,7 @@ server {
 }
 {{ end }}
 
-{{ range $host, $containers := groupByMulti $ "Env.VIRTUAL_HOST" "," }}
+{{ range $host, $containers := groupByMulti $ "Env.STGCONF_X_HOST" "," }}
 
 {{ $host := trim $host }}
 {{ $is_regexp := hasPrefix "~" $host }}
