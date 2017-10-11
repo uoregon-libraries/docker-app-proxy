@@ -1,4 +1,4 @@
-Docker App Register
+Docker App Proxy
 ===
 
 This is a simple Python script we use at the UO Libraries for creating a
