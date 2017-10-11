@@ -40,6 +40,11 @@ file will make everything "just work":
 
     docker-compose -f staging.docker-compose.yml up -d
 
+Part of the process here automatically strips all "ports" definitions from the
+source compose file when writing out the staging compose file.  This ensures
+that you won't have collisions when running multiple applications / stacks
+concurrently.
+
 ### Manual
 
 You can simply add environment variables to your services if you'd rather not
@@ -53,3 +58,9 @@ deal with the `register-app` script.  The current list of vars is as follows:
   request is made to http://[host]
 - `STGCONF_X_P443` Specify the service's port which you want to be used when a
   request is made to https://[host]
+
+**NOTE**, however, that if you simply adjust an existing compose file, you
+should be cautious.  Many times the compose file will automatically map ports
+from the services to the host.  This can cause conflicts!  Consider using the
+automatic setup to strip "ports" definitions, and then tweaking the output
+manually.
