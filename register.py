@@ -8,7 +8,7 @@ import sys
 import yaml
 import configure_service
 
-STAGING_FILE_BASE="staging.docker-compose.yml"
+STAGING_FILE_BASE="docker-compose.staging.yml"
 
 def usage(err = ""):
   exitcode=0
