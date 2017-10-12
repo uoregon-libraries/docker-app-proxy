@@ -1,8 +1,7 @@
 def print_menu(service):
   print("Configure %s:" % service["name"])
   print("")
-  print("C) Clear exposed ports")
-  print("P) Map a port (current mappings: %s)" % repr(service["ports"]))
+  print("P) Set exposed port (currently %d)" % service["port"])
   h = service["host"]
   print("H) Set host prefix (currently %s; e.g., your URL will look like http://%s.%hostname%)" % (h, h))
   print("")
@@ -20,24 +19,12 @@ def run(service):
       print("")
       val = "A"
 
-    if val == "C":
-      service["ports"] = {}
-      print("Cleared all port mappings")
-      print("")
-      continue
-
     if val == "P":
       exposed_str = raw_input("What port will the container expose? ")
-      nginx_str = raw_input("What port will nginx route from the outside world? ")
-
-      if nginx_str != "80" and nginx_str != "443":
-        print("You can only map ports 80 and/or 443")
-        continue
 
       try:
         exposed = int(exposed_str)
-        nginx = int(nginx_str)
-        service["ports"][nginx] = exposed
+        service["port"] = exposed
       except ValueError:
         print("Invalid port value(s); nothing mapped")
 

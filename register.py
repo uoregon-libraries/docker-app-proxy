@@ -63,7 +63,7 @@ def apply_service_confs(data, confs):
   """Return the service config information from environment variables configured in data"""
   for name, dockerdata in data["services"].iteritems():
     if name not in confs:
-      confs[name] = {"name": name, "ports": {}, "host": name}
+      confs[name] = {"name": name, "port": 0, "host": name}
 
     if "environment" not in dockerdata:
       continue
@@ -75,10 +75,8 @@ def apply_service_confs(data, confs):
         continue
 
       key, val = parts[0], parts[1]
-      if key == "STGCONF_X_P80":
-        confs[name]["ports"][80] = int(val)
-      if key == "STGCONF_X_P443":
-        confs[name]["ports"][443] = int(val)
+      if key == "STGCONF_X_PORT":
+        confs[name]["port"] = int(val)
       if key == "STGCONF_X_HOST":
         confs[name]["host"] = val
 
@@ -86,16 +84,10 @@ def write_staging_compose(dirname, data, confs):
   """Write the given config to a staging-specific compose file"""
   for name, conf in confs.iteritems():
     dockerdata = data["services"][name]
-    if len(conf["ports"]) > 0:
+    if conf["port"] > 0:
       if "environment" not in dockerdata:
         dockerdata["environment"] = []
-
-      for p1,p2 in conf["ports"].iteritems():
-        if p1 == 80:
-          dockerdata["environment"].append("STGCONF_X_P80=%d" % p2)
-        elif p1 == 443:
-          dockerdata["environment"].append("STGCONF_X_P443=%d" % p2)
-
+      dockerdata["environment"].append("STGCONF_X_PORT=%d" % conf["port"])
       dockerdata["environment"].append("STGCONF_X_HOST=%s" % conf["host"])
 
   with open(staging_file(dirname), "w") as f:
@@ -107,8 +99,8 @@ def print_menu(services, confs):
   optnum = 1
   for service in services:
     conf = confs[service]
-    if len(conf["ports"]) > 0:
-      print("%d) %s [host: %s; ports: %s]" % (optnum, service, conf["host"], repr(conf["ports"])))
+    if conf["port"] > 0:
+      print("%d) %s [host: %s; port: %d]" % (optnum, service, conf["host"], conf["port"]))
     else:
       print("%d) %s [not exposed]" % (optnum, service))
     optnum += 1

@@ -54,10 +54,8 @@ deal with the `register-app` script.  The current list of vars is as follows:
   application.  If this is set to "foo", for instance, and the project was
   deployed with a hostname of "staging.bar.com", the full URL would be
   "http(s)://foo.staging.bar.com".
-- `STGCONF_X_P80`: Specify the service's port which you want to be used when a
-  request is made to http://[host]
-- `STGCONF_X_P443` Specify the service's port which you want to be used when a
-  request is made to https://[host]
+- `STGCONF_X_PORT`: Specify the service's port which you want to be used when a
+  request is proxied from nginx
 
 **NOTE**, however, that if you simply adjust an existing compose file, you
 should be cautious.  Many times the compose file will automatically map ports

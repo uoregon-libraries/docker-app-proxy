@@ -101,8 +101,7 @@ server {
 upstream {{ $upstream_name }} {
 {{ range $container := $containers }}
   {{$network := $container.Networks|first}}
-  {{if $container.Env.STGCONF_X_P80}}server {{$network.IP}}:{{$container.Env.STGCONF_X_P80}};{{end}}
-  {{if $container.Env.STGCONF_X_P443}}server {{$network.IP}}:{{$container.Env.STGCONF_X_P443}};{{end}}
+  server {{$network.IP}}:{{$container.Env.STGCONF_X_PORT}};
 {{ end }}
 }
 
