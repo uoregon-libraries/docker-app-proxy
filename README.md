@@ -45,6 +45,11 @@ source compose file when writing out the staging compose file.  This ensures
 that you won't have collisions when running multiple applications / stacks
 concurrently.
 
+Note that for https to be enabled, you must have certificates in
+`/etc/nginx/certs/<host>.crt` and `/etc/nginx/certs/<host>.key`.  If you have
+`/etc/nginx/certs/default.*`, that will be used for all hosts if they don't
+have their own cert.
+
 ### Manual
 
 You can simply add environment variables to your services if you'd rather not
