@@ -1,15 +1,5 @@
 {{ $CurrentContainer := where $ "ID" .Docker.CurrentContainerID | first }}
 
-{{ define "upstream" }}
-  {{$network := .Container.Networks|first}}
-  {{if .Container.Env.STGCONF_X_P80}}
-    server {{$network.IP}}:{{.Container.Env.STGCONF_X_P80}};
-  {{end}}
-  {{if .Container.Env.STGCONF_X_P443}}
-    server {{$network.IP}}:{{.Container.Env.STGCONF_X_P443}};
-  {{end}}
-{{ end }}
-
 # If we receive X-Forwarded-Proto, pass it through; otherwise, pass along the
 # scheme used to connect to this server
 map $http_x_forwarded_proto $proxy_x_forwarded_proto {
@@ -109,11 +99,10 @@ server {
 
 # {{ $host }}
 upstream {{ $upstream_name }} {
-
 {{ range $container := $containers }}
-	{{ $addrLen := len $container.Addresses }}
-
-  {{ template "upstream" (dict "Container" $container) }}
+  {{$network := $container.Networks|first}}
+  {{if $container.Env.STGCONF_X_P80}}server {{$network.IP}}:{{$container.Env.STGCONF_X_P80}};{{end}}
+  {{if $container.Env.STGCONF_X_P443}}server {{$network.IP}}:{{$container.Env.STGCONF_X_P443}};{{end}}
 {{ end }}
 }
 
