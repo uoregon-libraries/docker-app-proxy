@@ -132,7 +132,9 @@ def main_menu(confs):
 
     try:
       valnum = int(val)
-      if valnum < len(svc_list):
+      print valnum
+      print len(svc_list)
+      if valnum <= len(svc_list):
         service = svc_list[valnum-1]
         configure_service.run(confs[service])
         print_menu(svc_list, confs)
