@@ -16,4 +16,6 @@ sudo sed -i "s|^cd.*$|cd $depdir|" $depdir/register-app
 sudo sed -i "s|%hostname%|$hostname|g" $depdir/nginx.tmpl
 sudo sed -i "s|%hostname%|$hostname|g" $depdir/configure_service.py
 sudo rm -f /usr/local/bin/register-app
+sudo rm -f /usr/local/bin/setup-dc-staging
 sudo cp $depdir/register-app /usr/local/bin/register-app
+sudo cp $depdir/setup-dc-staging /usr/local/bin/setup-dc-staging
