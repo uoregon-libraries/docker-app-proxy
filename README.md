@@ -20,9 +20,12 @@ Setup
 - Get docker-gen running (this will have to be done as root):
   - `/usr/local/bin/docker-gen --watch --notify "nginx -s reload" /usr/local/register/nginx.tmpl /etc/nginx/conf.d/docker.conf`
   - Feel free to submit a PR with a systemd setup (we'll probably get to this eventually)
-- Put this project somewhere accessible by all users, such as
-  /usr/local/register - or copy and modify the [register-app](./register-app)
-  example script
+- Run the "installer": `./deploy.sh staging.mysite.edu`.  This will make the
+  command `register-app` available to all users.
+- Instruct users to `source setup-dc-staging` from their docker project's
+  directory; this allows one to type `stage up -d` rather than
+  `docker-compose -f docker-compose.staging.yml`.  It also sets up the alias to
+  use `docker-compose.override.yml` if present, further simplifying usage.
 
 Usage
 ---
