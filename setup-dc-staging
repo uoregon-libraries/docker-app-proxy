@@ -1,0 +1,27 @@
+#!/bin/bash
+if [[ $_ == $0 ]]; then
+  echo "You may not execute this script directly.  In order to get the aliases"
+  echo "locally, you must source it from within the directory where your"
+  echo "docker-compose.staging.yml and, optionally, docker-compose.override.yml"
+  echo "files live."
+  exit 1
+fi
+
+sourced() {
+  if [[ ! -f docker-compose.staging.yml ]]; then
+    echo "You must source this file from within the directory where your"
+    echo "docker-compose.staging.yml and, optionally, docker-compose.override.yml"
+    echo "files live."
+    return
+  fi
+
+  if [[ -f docker-compose.override.yml ]]; then
+    alias stage="docker-compose -f docker-compose.staging.yml -f docker-compose.override.yml"
+  else
+    alias stage="docker-compose -f docker-compose.staging.yml"
+  fi
+
+  echo 'Docker staging alias set up; use "stage" where you would normally type "docker-compose"'
+}
+
+sourced
