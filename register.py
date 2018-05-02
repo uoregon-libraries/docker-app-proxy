@@ -85,14 +85,15 @@ def write_staging_compose(dirname, data, confs):
   for name, conf in confs.iteritems():
     dockerdata = data["services"][name]
     if conf["port"] > 0:
+      if "environment" not in dockerdata:
+        dockerdata["environment"] = {}
+
       if isinstance(dockerdata["environment"], dict):
         newenv = []
         for key,val in dockerdata["environment"].iteritems():
           newenv.append("%s=%s" % (key, val))
         dockerdata["environment"] = newenv
 
-      if "environment" not in dockerdata:
-        dockerdata["environment"] = []
       dockerdata["environment"].append("STGCONF_X_PORT=%d" % conf["port"])
       dockerdata["environment"].append("STGCONF_X_HOST=%s" % conf["host"])
 
