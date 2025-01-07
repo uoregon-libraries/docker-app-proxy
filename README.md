@@ -1,6 +1,8 @@
 Docker App Proxy
 ===
 
+**This project is archived, as we're no longer using this process**
+
 This is a simple Python script we use at the UO Libraries for creating a
 semi-automated staging server for docker-compose projects.
 
